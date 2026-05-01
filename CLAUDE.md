@@ -19,9 +19,6 @@ composer install
 
 # Syntax check
 php -l src/SphinxClient.php
-
-# Run integration test (requires Sphinx/Manticore at 127.0.0.1:9306)
-php test.php
 ```
 
 ## Architecture
