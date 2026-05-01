@@ -121,4 +121,3 @@ print_r($result);
 ## 文件 / Files
 
 - `src/SphinxClient.php` — Zround\SphinxClient 类实现 / Class implementation
-- `test.php` — 简单测试脚本 / Simple test script
