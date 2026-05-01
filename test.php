@@ -1,9 +1,11 @@
 <?php
 
-require_once __DIR__ . '/sphinxapi.php';
+require_once __DIR__ . '/vendor/autoload.php';
+
+use Zround\SphinxClient;
 
 $cl = new SphinxClient();
-$cl->SetServer('127.0.0.1', 9306);
+$cl->SetServer('10.10.10.10', 19314);
 $cl->SetConnectTimeout(3);
 
 echo "=== Ping ===\n";
@@ -17,7 +19,7 @@ echo "\n=== Query: test ===\n";
 
 $cl->SetArrayResult(true);
 $cl->SetLimits(200, 20);
-$cl->AddQuery('*', 'index');
+$cl->AddQuery('阿莫西林', 'yaopincn');
 
 $result = $cl->RunQueries();
 

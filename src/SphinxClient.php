@@ -1,5 +1,7 @@
 <?php
 
+namespace Zround;
+
 /////////////////////////////////////////////////////////////////////////////
 // PHP version of Sphinx searchd client (PHP API)
 // Rewritten to use SphinxQL (MySQL protocol) instead of native binary protocol
@@ -235,7 +237,7 @@ class SphinxClient
                 try {
                     $this->_conn->query("SELECT 1");
                     return $this->_conn;
-                } catch (PDOException $e) {
+                } catch (\PDOException $e) {
                     $this->_conn = null;
                 }
             } else {
@@ -258,13 +260,13 @@ class SphinxClient
         try {
             $options = [];
             if ($this->_timeout > 0) {
-                $options[PDO::ATTR_TIMEOUT] = $this->_timeout;
+                $options[\PDO::ATTR_TIMEOUT] = $this->_timeout;
             }
-            $this->_conn = new PDO($dsn, "", "", $options);
-            $this->_conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $this->_conn->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, true);
-            $this->_conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
-        } catch (PDOException $e) {
+            $this->_conn = new \PDO($dsn, "", "", $options);
+            $this->_conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            $this->_conn->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, true);
+            $this->_conn->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
+        } catch (\PDOException $e) {
             $location         = $this->_path ?: "$this->_host:$this->_port";
             $this->_error     = "connection to $location failed (" . $e->getMessage() . ")";
             $this->_connerror = true;
@@ -321,7 +323,7 @@ class SphinxClient
         return "'" . addslashes(strval($value)) . "'";
     }
 
-    private function _IsConnectionError(PDOException $e)
+    private function _IsConnectionError(\PDOException $e)
     {
         $code       = strval($e->getCode());
         $conn_codes = ['08S01', 'HY000', '2006', '2013'];
@@ -660,7 +662,7 @@ class SphinxClient
         try {
             $stmt = $conn->query("DESCRIBE " . $this->_quoteAttr($idx));
             if ($stmt) {
-                while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+                while ($row = $stmt->fetch(\PDO::FETCH_NUM)) {
                     $name = $row[0];
                     $type = $row[1];
 
@@ -671,7 +673,7 @@ class SphinxClient
                     }
                 }
             }
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             // if DESCRIBE fails, proceed with empty schema
         }
 
@@ -781,13 +783,13 @@ class SphinxClient
         try {
             $stmt = $conn->query("SHOW META");
             if ($stmt) {
-                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
                     $key        = isset($row['Variable_name']) ? $row['Variable_name'] : array_values($row)[0];
                     $val        = isset($row['Value']) ? $row['Value'] : (count($row) > 1 ? array_values($row)[1] : "");
                     $meta[$key] = $val;
                 }
             }
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             // SHOW META not available
         }
         return $meta;
@@ -841,7 +843,7 @@ class SphinxClient
             $result["fields"] = $schema['fields'];
             $result["attrs"]  = $schema['attrs'];
 
-            $rows              = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $rows              = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             $result["matches"] = $this->_TransformRows($rows, $schema);
 
             $meta = $this->_FetchMeta($conn);
@@ -855,7 +857,7 @@ class SphinxClient
                 $result["time"] = sprintf("%.3f", floatval($meta['time']));
             }
             $result["words"] = $this->_ExtractWordStats($meta);
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             $msg = $e->getMessage();
             if ($this->_IsConnectionError($e)) {
                 $this->_connerror = true;
@@ -1382,13 +1384,13 @@ class SphinxClient
                 $sql  = "CALL SNIPPETS(" . implode(", ", $params) . ")";
                 $stmt = $conn->query($sql);
                 if ($stmt) {
-                    $row   = $stmt->fetch(PDO::FETCH_NUM);
+                    $row   = $stmt->fetch(\PDO::FETCH_NUM);
                     $res[] = $row ? strval($row[0]) : "";
                 } else {
                     $res[] = "";
                 }
             }
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             $this->_error = "SphinxQL error in CALL SNIPPETS: " . $e->getMessage();
             if ($this->_IsConnectionError($e)) {
                 $this->_connerror = true;
@@ -1433,7 +1435,7 @@ class SphinxClient
             }
 
             $res = [];
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
                 $entry = [
                     "tokenized"  => isset($row['tokenized']) ? $row['tokenized'] : "",
                     "normalized" => isset($row['normalized']) ? $row['normalized'] : "",
@@ -1444,7 +1446,7 @@ class SphinxClient
                 }
                 $res[] = $entry;
             }
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             $this->_error = "SphinxQL error in CALL KEYWORDS: " . $e->getMessage();
             if ($this->_IsConnectionError($e)) {
                 $this->_connerror = true;
@@ -1535,7 +1537,7 @@ class SphinxClient
                 $conn->exec($sql);
                 $updated += $conn->rowCount();
             }
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             $this->_error = "SphinxQL error in UPDATE: " . $e->getMessage();
             if ($this->_IsConnectionError($e)) {
                 $this->_connerror = true;
@@ -1597,12 +1599,12 @@ class SphinxClient
             }
 
             $res = [];
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
                 $name  = isset($row['Variable_name']) ? $row['Variable_name'] : array_values($row)[0];
                 $val   = isset($row['Value']) ? $row['Value'] : (count($row) > 1 ? array_values($row)[1] : "");
                 $res[] = [$name, $val];
             }
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             $this->_error = "SphinxQL error in SHOW STATUS: " . $e->getMessage();
             if ($this->_IsConnectionError($e)) {
                 $this->_connerror = true;
@@ -1631,7 +1633,7 @@ class SphinxClient
             $this->_DisconnectAfterQuery();
             $this->_MBPop();
             return 0;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             $this->_error = "SphinxQL error in FLUSH ATTRIBUTES: " . $e->getMessage();
             if ($this->_IsConnectionError($e)) {
                 $this->_connerror = true;
@@ -1652,7 +1654,7 @@ class SphinxClient
 
             $stmt = $conn->query("SELECT 1");
             return ($stmt !== false);
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             return false;
         }
     }

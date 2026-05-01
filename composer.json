@@ -1,0 +1,22 @@
+{
+    "name": "zround/sphinxapi",
+    "description": "Sphinx searchd client using SphinxQL (MySQL protocol) instead of deprecated native binary protocol",
+    "type": "library",
+    "keywords": ["sphinx", "sphinxql", "search", "manticore"],
+    "license": "MIT",
+    "require": {
+        "php": ">=7.4",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Zround\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Zround\\Tests\\": "tests/"
+        }
+    }
+}
