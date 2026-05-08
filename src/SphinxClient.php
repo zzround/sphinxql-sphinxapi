@@ -1,5 +1,4 @@
 <?php
-
 namespace Zround;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -378,7 +377,8 @@ class SphinxClient
     private function _translateGroupSort()
     {
         $sort = $this->_groupsort;
-        $sort = str_replace("@group", "@groupby", $sort);
+        $sort = str_replace("@groupby", "GROUPBY()", $sort);
+        $sort = str_replace("@group", "GROUPBY()", $sort);
         $sort = str_replace("@count", "COUNT(*)", $sort);
         $sort = str_replace("@weight", "WEIGHT()", $sort);
         if ($this->_groupdistinct !== "") {
@@ -503,7 +503,7 @@ class SphinxClient
 
         $select = $this->_select;
         if ($this->_groupdistinct !== "") {
-            $select .= ", COUNT(DISTINCT " . $this->_quoteAttr($this->_groupdistinct) . ") AS `@distinct`";
+            $select .= ", COUNT(DISTINCT " . $this->_quoteAttr($this->_groupdistinct) . ") AS __sphinx_distinct";
         }
         $parts[] = "SELECT " . $select;
 
@@ -764,6 +764,11 @@ class SphinxClient
                 $attrvals[$key] = is_numeric($val)
                     ? (strpos(strval($val), '.') !== false ? floatval($val) : intval($val))
                     : strval($val);
+            }
+
+            if (array_key_exists('__sphinx_distinct', $attrvals)) {
+                $attrvals['@distinct'] = $attrvals['__sphinx_distinct'];
+                unset($attrvals['__sphinx_distinct']);
             }
 
             if ($this->_arrayresult) {
@@ -1659,3 +1664,54 @@ class SphinxClient
         }
     }
 }
+
+// Global namespace aliases for backward compatibility
+// Users of the original sphinxapi expect these constants in the global namespace
+if (!defined('SEARCHD_OK'))      define('SEARCHD_OK',      SEARCHD_OK);
+if (!defined('SEARCHD_ERROR'))   define('SEARCHD_ERROR',   SEARCHD_ERROR);
+if (!defined('SEARCHD_RETRY'))   define('SEARCHD_RETRY',   SEARCHD_RETRY);
+if (!defined('SEARCHD_WARNING')) define('SEARCHD_WARNING', SEARCHD_WARNING);
+
+if (!defined('SPH_RANK_PROXIMITY_BM15')) define('SPH_RANK_PROXIMITY_BM15', SPH_RANK_PROXIMITY_BM15);
+if (!defined('SPH_RANK_BM15'))           define('SPH_RANK_BM15',           SPH_RANK_BM15);
+if (!defined('SPH_RANK_NONE'))           define('SPH_RANK_NONE',           SPH_RANK_NONE);
+if (!defined('SPH_RANK_WORDCOUNT'))      define('SPH_RANK_WORDCOUNT',      SPH_RANK_WORDCOUNT);
+if (!defined('SPH_RANK_PROXIMITY'))      define('SPH_RANK_PROXIMITY',      SPH_RANK_PROXIMITY);
+if (!defined('SPH_RANK_MATCHANY'))       define('SPH_RANK_MATCHANY',       SPH_RANK_MATCHANY);
+if (!defined('SPH_RANK_FIELDMASK'))      define('SPH_RANK_FIELDMASK',      SPH_RANK_FIELDMASK);
+if (!defined('SPH_RANK_SPH04'))          define('SPH_RANK_SPH04',          SPH_RANK_SPH04);
+if (!defined('SPH_RANK_EXPR'))           define('SPH_RANK_EXPR',           SPH_RANK_EXPR);
+if (!defined('SPH_RANK_TOTAL'))          define('SPH_RANK_TOTAL',          SPH_RANK_TOTAL);
+
+if (!defined('SPH_SORT_RELEVANCE'))     define('SPH_SORT_RELEVANCE',     SPH_SORT_RELEVANCE);
+if (!defined('SPH_SORT_ATTR_DESC'))     define('SPH_SORT_ATTR_DESC',     SPH_SORT_ATTR_DESC);
+if (!defined('SPH_SORT_ATTR_ASC'))      define('SPH_SORT_ATTR_ASC',      SPH_SORT_ATTR_ASC);
+if (!defined('SPH_SORT_TIME_SEGMENTS')) define('SPH_SORT_TIME_SEGMENTS', SPH_SORT_TIME_SEGMENTS);
+if (!defined('SPH_SORT_EXTENDED'))      define('SPH_SORT_EXTENDED',      SPH_SORT_EXTENDED);
+
+if (!defined('SPH_FILTER_VALUES'))      define('SPH_FILTER_VALUES',      SPH_FILTER_VALUES);
+if (!defined('SPH_FILTER_RANGE'))       define('SPH_FILTER_RANGE',       SPH_FILTER_RANGE);
+if (!defined('SPH_FILTER_FLOATRANGE'))  define('SPH_FILTER_FLOATRANGE',  SPH_FILTER_FLOATRANGE);
+if (!defined('SPH_FILTER_STRING'))      define('SPH_FILTER_STRING',      SPH_FILTER_STRING);
+if (!defined('SPH_FILTER_STRING_LIST')) define('SPH_FILTER_STRING_LIST', SPH_FILTER_STRING_LIST);
+
+if (!defined('SPH_ATTR_INTEGER')) define('SPH_ATTR_INTEGER', SPH_ATTR_INTEGER);
+if (!defined('SPH_ATTR_BOOL'))    define('SPH_ATTR_BOOL',    SPH_ATTR_BOOL);
+if (!defined('SPH_ATTR_FLOAT'))   define('SPH_ATTR_FLOAT',   SPH_ATTR_FLOAT);
+if (!defined('SPH_ATTR_BIGINT'))  define('SPH_ATTR_BIGINT',  SPH_ATTR_BIGINT);
+if (!defined('SPH_ATTR_STRING'))  define('SPH_ATTR_STRING',  SPH_ATTR_STRING);
+if (!defined('SPH_ATTR_FACTORS')) define('SPH_ATTR_FACTORS', SPH_ATTR_FACTORS);
+if (!defined('SPH_ATTR_MULTI'))   define('SPH_ATTR_MULTI',   SPH_ATTR_MULTI);
+if (!defined('SPH_ATTR_MULTI64')) define('SPH_ATTR_MULTI64', SPH_ATTR_MULTI64);
+
+if (!defined('SPH_GROUPBY_DAY'))      define('SPH_GROUPBY_DAY',      SPH_GROUPBY_DAY);
+if (!defined('SPH_GROUPBY_WEEK'))     define('SPH_GROUPBY_WEEK',     SPH_GROUPBY_WEEK);
+if (!defined('SPH_GROUPBY_MONTH'))    define('SPH_GROUPBY_MONTH',    SPH_GROUPBY_MONTH);
+if (!defined('SPH_GROUPBY_YEAR'))     define('SPH_GROUPBY_YEAR',     SPH_GROUPBY_YEAR);
+if (!defined('SPH_GROUPBY_ATTR'))     define('SPH_GROUPBY_ATTR',     SPH_GROUPBY_ATTR);
+if (!defined('SPH_GROUPBY_ATTRPAIR')) define('SPH_GROUPBY_ATTRPAIR', SPH_GROUPBY_ATTRPAIR);
+
+if (!defined('SPH_UPDATE_PLAIN'))  define('SPH_UPDATE_PLAIN',  SPH_UPDATE_PLAIN);
+if (!defined('SPH_UPDATE_MVA'))    define('SPH_UPDATE_MVA',    SPH_UPDATE_MVA);
+if (!defined('SPH_UPDATE_STRING')) define('SPH_UPDATE_STRING', SPH_UPDATE_STRING);
+if (!defined('SPH_UPDATE_JSON'))   define('SPH_UPDATE_JSON',   SPH_UPDATE_JSON);
